@@ -1,0 +1,122 @@
+[
+    {
+        "id": "analyze-legislation",
+        "agentName": "IdeaCreatorAgent",
+        "agentUrl": "http://localhost:8081",
+        "skillDescription": "Uses AI to analyze government legislation and identify banking opportunities",
+        "confidence": 0.8304999999999999,
+        "skilId": "analyze-legislation"
+    },
+    {
+        "id": "create-product-idea",
+        "agentName": "IdeaCreatorAgent",
+        "agentUrl": "http://localhost:8081",
+        "skillDescription": "Uses AI to formulate detailed banking product propositions based on opportunities",
+        "confidence": 0.8304999999999999,
+        "skilId": "create-product-idea"
+    },
+    {
+        "id": "comprehensive-product-critique",
+        "agentName": "IdeaCriticAgent",
+        "agentUrl": "http://localhost:8083",
+        "skillDescription": "Uses AI to provide thorough critical analysis of banking product ideas",
+        "confidence": 0.6107750000000001,
+        "skilId": "comprehensive-product-critique"
+    },
+    {
+        "id": "competitive-analysis",
+        "agentName": "IdeaCriticAgent",
+        "agentUrl": "http://localhost:8083",
+        "skillDescription": "Uses AI to analyze competitive landscape and positioning challenges",
+        "confidence": 0.6107750000000001,
+        "skilId": "competitive-analysis"
+    },
+    {
+        "id": "create-final-presentation",
+        "agentName": "IdeaFinalizerAgent",
+        "agentUrl": "http://localhost:8084",
+        "skillDescription": "Uses AI to create comprehensive final presentation for human approval",
+        "confidence": 0.49238750000000003,
+        "skilId": "create-final-presentation"
+    },
+    {
+        "id": "synthesize-all-feedback",
+        "agentName": "IdeaFinalizerAgent",
+        "agentUrl": "http://localhost:8084",
+        "skillDescription": "Uses AI to synthesize feedback from critics and risk assessors into actionable insights",
+        "confidence": 0.49238750000000003,
+        "skilId": "synthesize-all-feedback"
+    },
+    {
+        "id": "make-strategic-decision",
+        "agentName": "IdeaFinalizerAgent",
+        "agentUrl": "http://localhost:8084",
+        "skillDescription": "Uses AI to make strategic decisions on whether to iterate, finalize, or terminate product development",
+        "confidence": 0.49238750000000003,
+        "skilId": "make-strategic-decision"
+    },
+    {
+        "id": "refine-product-with-ai",
+        "agentName": "IdeaFinalizerAgent",
+        "agentUrl": "http://localhost:8084",
+        "skillDescription": "Uses AI to intelligently refine and improve product ideas based on feedback",
+        "confidence": 0.49238750000000003,
+        "skilId": "refine-product-with-ai"
+    },
+    {
+        "id": "executive-review",
+        "agentName": "HumanAgent",
+        "agentUrl": "http://localhost:8085",
+        "skillDescription": "Uses AI to simulate executive-level qualitative assessment of product proposals",
+        "confidence": 0.38885,
+        "skilId": "executive-review"
+    },
+    {
+        "id": "final-approval-decision",
+        "agentName": "HumanAgent",
+        "agentUrl": "http://localhost:8085",
+        "skillDescription": "Uses AI to make the ultimate executive approval or rejection decision",
+        "confidence": 0.38885,
+        "skilId": "final-approval-decision"
+    },
+    {
+        "id": "strategic-implementation-guidance",
+        "agentName": "HumanAgent",
+        "agentUrl": "http://localhost:8085",
+        "skillDescription": "Uses AI to provide strategic guidance for approved product implementation",
+        "confidence": 0.38885,
+        "skilId": "strategic-implementation-guidance"
+    },
+    {
+        "id": "process-text",
+        "agentName": "TextProcessor",
+        "agentUrl": "http://localhost:8083",
+        "skillDescription": "Processes and analyzes text content, extracts information, and provides insights",
+        "confidence": 0.3,
+        "skilId": "process-text"
+    },
+    {
+        "id": "analyze-sentiment",
+        "agentName": "TextProcessor",
+        "agentUrl": "http://localhost:8083",
+        "skillDescription": "Analyzes the sentiment and emotional tone of text",
+        "confidence": 0.3,
+        "skilId": "analyze-sentiment"
+    },
+    {
+        "id": "extract-keywords",
+        "agentName": "TextProcessor",
+        "agentUrl": "http://localhost:8083",
+        "skillDescription": "Extracts important keywords and phrases from text",
+        "confidence": 0.3,
+        "skilId": "extract-keywords"
+    },
+    {
+        "id": "summarize-text",
+        "agentName": "TextProcessor",
+        "agentUrl": "http://localhost:8083",
+        "skillDescription": "Creates a concise summary of longer text content",
+        "confidence": 0.3,
+        "skilId": "summarize-text"
+    }
+]
