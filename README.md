@@ -6,7 +6,7 @@ Minimal multi-module setup for the Idea of an intangible product.
 - `shared-config` – shared config
 - `idea-creator-agent` – seeds ideas
 - `risk-estimator-agent` - risk estimates
-- `dea-critic-agent` – idea critic
+- `idea-critic-agent` – idea critic
 - `idea-finalizer-agent` – idea finalizer
 - `human-agent` – simple replacment for Human in the loop :)
 - `orchestration-service` – workflow for all the activity, use receptionist concept
@@ -17,7 +17,7 @@ Minimal multi-module setup for the Idea of an intangible product.
 
 It is forked from https://github.com/a2aproject/a2a-java project and added the receptionist module (receptionist depend only on the spec module)
 
-mvn clean install (in a2a-java-ext catalog)
+`mvn clean install` (in a2a-java-ext catalog)
 
 You need a database to persist registered agents (in my case, an Oracle database with table A2A_AGENTS).
 
@@ -33,13 +33,13 @@ You must export shell variables (examples)
 Or other if needed
 
 
-2. Compile the agents - in dea-agents catalg (require to compile the shared-config!)
+2. Build the agents - in `idea-agents` catalg run:
 
-./build-all.sh (need to install shared config)
+`./build-all.sh` (need to install shared config)
 
 2. Run all agents and orchestrator
 
-./start-all.sh
+`./start-all.sh`
 
 
 3. Seed an idea:
