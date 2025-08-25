@@ -6,7 +6,7 @@ services=(
   "idea-creator-agent"
   "idea-critic-agent"
   "idea-finalizer-agent"
-  "orchestration-service"
+  # "orchestration-service"
   "risk-estimator-agent"
 )
 

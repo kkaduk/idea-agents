@@ -1,0 +1,44 @@
+{
+    "taskId": "draft-retail-savings-product",
+    "executionMode": "sequential",
+    "selectedSkills": [
+        {
+            "stepId": "step1",
+            "agentName": "IdeaCreatorAgent",
+            "agentUrl": "http://localhost:8081",
+            "skillId": "analyze-legislation",
+            "confidence": 0.8304999999999999,
+            "priority": 1,
+            "timeoutSec": 120,
+            "retries": {
+                "maxAttempts": 2,
+                "backoffSec": 3
+            },
+            "input": {
+                "legislation": "consumer credit amendment 2025",
+                "country": "PL"
+            },
+            "dependsOn": []
+        },
+        {
+            "stepId": "step2",
+            "agentName": "IdeaCreatorAgent",
+            "agentUrl": "http://localhost:8081",
+            "skillId": "create-product-idea",
+            "confidence": 0.8304999999999999,
+            "priority": 1,
+            "timeoutSec": 120,
+            "retries": {
+                "maxAttempts": 2,
+                "backoffSec": 3
+            },
+            "input": {
+                "segment": "millennials"
+            },
+            "dependsOn": [
+                "step1"
+            ]
+        }
+    ],
+    "reason": ""
+}

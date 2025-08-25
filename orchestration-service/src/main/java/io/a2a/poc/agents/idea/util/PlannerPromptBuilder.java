@@ -1,14 +1,14 @@
 package io.a2a.poc.agents.idea.util;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import io.a2a.poc.agents.idea.service.IdeaProductWorkflowOrchestrator.A2AReceptionistSkill;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import io.a2a.poc.agents.idea.service.ProductIdeaWorkflowOrchestrator.A2AReceptionistSkill;
 
 /**
  * Build the planner/dispatcher prompt by injecting runtime values into the
@@ -94,26 +94,81 @@ public class PlannerPromptBuilder {
             throw new IllegalStateException("Failed to render planner prompt", e);
         }
     }
-
-    // === DTOs you can adapt to your domain ===
     public record UserTask(
             String title,
             String description,
             Map<String, Object> constraints) {
     }
 
-    // public record AgentSkill(
-    //         String id,
-    //         String agentName,
-    //         String agentUrl,
-    //         String skillDescription,
-    //         Double confidence,
-    //         String skilId // note: source field uses single 'l'
-    // ) {
-    // }
+  
+
+     private static final String TEMPLATE_SKILLS = """
+                You are an expert metadata extractor for opportunity detection and agent skill routing.
+                Your goal is to read the provided document text and output only a compact JSON object:
+                {
+                   "keywords": ["..."],
+                   "requiredTags": ["..."]
+                }
+
+                Output rules
+                Output JSON only (no prose).
+                keywords → 6–14 concise, lowercase phrases (deduplicated). Prefer: jurisdiction, sector, legal objects, binding provisions, dates, numbers, affected parties, operational constraints.
+                requiredTags → 8–15 routing tags in key:value form, chosen from the controlled vocabulary below. Include at least one skill:* tag.
+                Controlled vocabulary (aligns with your agents)
+                Context & scope
+                jurisdiction:<iso2> (e.g., jurisdiction:pl)
+                sector:education|finance|health|energy|public-sector|local-gov
+                instrument:act|regulation|resolution|citizens-initiative
+                legal-status:draft|pending|in-force|repeal|amendment
+                timeline:<yyyy-mm-dd> (effective/onset date)
+                stakeholder:schools|parents|students|teachers|local-gov|moe
+                impact:budget|compliance|operational|reputation
+                opportunity:regulatory|market|partnership|funding
+                risk:legal-challenge|political|public-perception|supply|data
+                priority (include when time-sensitive or high-impact)
+
+                Agent skills (choose any that apply)
+                skill:monitor-legislation — watch docket, updates, deadlines
+                skill:policy-diff — compare current vs proposed text, extract deltas
+                skill:analyze-legislation — summarize obligations, constraints, dependencies
+                skill:impact-assessment — quantify operational/budget/compliance impact
+                skill:stakeholder-mapping — map actors, rights, duties, decision points
+                skill:compliance-check — translate provisions to checklists & controls
+                skill:opportunity-mining — detect product/service opportunities
+                skill:create-product-idea — craft product concept canvases from opportunities
+                skill:market-sizing — estimate TAM/SAM/SOM from policy scope
+                skill:risk-scoring — legal/political/ops risk with likelihood×impact
+                skill:go-to-market — channels, ICPs, procurement paths (public sector)
+                skill:data-requirements — identify datasets, integration points, KPIs
+                skill:edu-scheduling-optimizer — scheduling/grouping under legal constraints
+                skill:teacher-workforce-planner — staffing, recruitment, training projections
+                skill:budget-estimation — quantify cost items (e.g., extra FTE, capex/opex)
+
+                Quality checks
+                Use ISO dates (YYYY-MM-DD).
+                Normalize numbers in keywords (e.g., 141.7 mln pln).
+                Prefer multiword domain concepts over single tokens.
+                Omit unknown tags; don’t guess.
+                DOCUMENT
+                {{document_text}}
+
+        """;
 
 
-    // === Example usage (plain Java) ===
+        public static String buildSkillsPrompt(String billSummary) {
+        Objects.requireNonNull(billSummary, "billSummary");
+       
+        try {
+
+            return TEMPLATE_SKILLS
+                    .replace("{{document_text}}", billSummary);
+                    
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to render planner prompt", e);
+        }
+    }
+
+  // === Example usage (plain Java) ===
     public static void main(String[] args) {
         List<A2AReceptionistSkill> catalog = List.of(
                 new A2AReceptionistSkill("analyze-legislation", "IdeaCreatorAgent", "http://localhost:8081",
@@ -133,5 +188,15 @@ public class PlannerPromptBuilder {
 
         String prompt = PlannerPromptBuilder.build(task, catalog, 0.7);
         System.out.println(prompt);
+
+        String documentSummary = """
+                        The document is a citizens’ legislative initiative submitted to the Polish Sejm in June 2025. It proposes amendments to the Education System Act (1991) and the Education Law (2016) concerning the teaching of religion and ethics in schools. The core change is the introduction of mandatory religion or ethics classes (two hours per week) in preschools, primary and secondary schools, and art schools (excluding adult schools). Parents or adult students will be required to choose between religion and ethics, with the choice declared annually.
+                        The proposal defines organizational rules (minimum of 7 students per class, possibility of interschool groups, group size limits), teacher qualifications (appointed by religious authorities in consultation with the Ministry of Education), and evaluation principles (grades count toward GPA and promotion). It also includes provisions on retreats (rekolekcje), the role of religion teachers in the school community, supervision and inspections, and the presence of religious symbols such as the cross.
+                        The justification stresses the importance of moral and ethical education for youth development, invoking constitutional guarantees (Art. 53), cultural heritage, and international comparisons (Austria, Belgium, Lithuania, etc.). It argues for stabilizing these provisions at the statutory level rather than ministerial regulations to prevent ad hoc policy changes. The financial impact is estimated at about 141.7 million PLN annually, mainly due to the need for additional ethics teachers. The law is intended to enter into force on 1 September 2025.
+                        """;
+        String skillsPrompt = buildSkillsPrompt(documentSummary);
+        System.out.println("====================");
+        System.out.println(skillsPrompt);
+
     }
 }
