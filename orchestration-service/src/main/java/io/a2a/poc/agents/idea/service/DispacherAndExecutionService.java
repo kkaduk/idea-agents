@@ -28,18 +28,19 @@ public class DispacherAndExecutionService {
     @Autowired
     Receptionist receptionist;
 
-    public String dispatchAndExecuteTask(TaskOrchestrationResponse orchestrationResponse) {
-        try {
-            Map<String, Object> results = new HashMap<>();
-            List<TaskOrchestrationResponse.SelectedSkill> skills = orchestrationResponse.selectedSkills();
-            List<TaskOrchestrationResponse.SelectedSkill> executionOrder = topologicalSort(skills);
-            results = executeInDependencyOrder(executionOrder);
-            return consolidateResults(results, orchestrationResponse.taskId());
-
-        } catch (Exception e) {
-            log.error("Error executing task orchestration: {}", e.getMessage(), e);
-            return String.format("Task execution failed: %s", e.getMessage());
-        }
+    public reactor.core.publisher.Mono<String> dispatchAndExecuteTask(TaskOrchestrationResponse orchestrationResponse) {
+        return reactor.core.publisher.Mono.fromCallable(() -> {
+            try {
+                Map<String, Object> results = new HashMap<>();
+                List<TaskOrchestrationResponse.SelectedSkill> skills = orchestrationResponse.selectedSkills();
+                List<TaskOrchestrationResponse.SelectedSkill> executionOrder = topologicalSort(skills);
+                results = executeInDependencyOrder(executionOrder);
+                return consolidateResults(results, orchestrationResponse.taskId());
+            } catch (Exception e) {
+                log.error("Error executing task orchestration: {}", e.getMessage(), e);
+                return String.format("Task execution failed: %s", e.getMessage());
+            }
+        });
     }
 
     private List<TaskOrchestrationResponse.SelectedSkill> topologicalSort(
@@ -276,5 +277,3 @@ public class DispacherAndExecutionService {
         return consolidatedResult.toString();
     }
 }
-
-
