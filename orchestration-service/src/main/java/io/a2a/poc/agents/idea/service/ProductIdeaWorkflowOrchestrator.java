@@ -25,14 +25,14 @@ import reactor.util.retry.Retry;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductIdeaWorkflowOrchestrator {
-
+            
     private static final double MIN_CONFIDENCE_THRESHOLD = 0.1;
     private static final int MAX_AGENT_RESULTS = 5;
     private static final String CORRELATION_ID_KEY = "correlationId";
     
     private final PlannerService plannerService;
     private final Receptionist receptionist;
-    private final DispacherAndExecutionService execution;
+    private final DispatcherAndExecutionService execution;
 
     /**
      * Discovers agents based on skill criteria with enhanced logging and error handling
