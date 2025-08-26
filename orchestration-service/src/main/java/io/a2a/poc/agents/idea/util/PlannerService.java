@@ -52,6 +52,21 @@ public class PlannerService {
                 });
     }
 
+        public Mono<Map<String, Object>> createIdea(String document) {
+
+        String prompt = PlannerPromptBuilder.buildSkillsPrompt(document);
+
+        return chatClient.ask(prompt)
+                .map(response -> {
+                    try {
+                        return objectMapper.readValue(response, new TypeReference<Map<String, Object>>() {
+                        });
+                    } catch (JsonProcessingException e) {
+                        return Map.of("raw", response);
+                    }
+                });
+    }
+
 
 
     public Mono<Map<String, Object>> prepareAgentSkills(String idea) {

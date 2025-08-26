@@ -52,7 +52,7 @@ public class PlannerPromptBuilder {
             4. If multiple skills are needed, create an execution plan with "executionMode" = "sequential" or "parallel".
             5. For sequential chains, use "dependsOn" to reference prior steps by "stepId".
             6. Extract minimal, structured "input" arguments required by the chosen skill(s) from the task description.
-            7. Set "priority" (1–5, 1 = highest) and a reasonable "timeoutSec" (default 120 if unspecified).
+            7. Set "priority" (1-5, 1 = highest) and a reasonable "timeoutSec" (default 120 if unspecified).
             8. Include a retry policy: { "maxAttempts": 2, "backoffSec": 3 } unless otherwise stated.
             9. If no suitable skill exists, return an empty "selectedSkills" array and provide a non-empty "reason".
             10. Return JSON only. Do not include any explanations or extra text.
@@ -106,14 +106,18 @@ public class PlannerPromptBuilder {
                 You are an expert metadata extractor for opportunity detection and agent skill routing.
                 Your goal is to read the provided document text and output only a compact JSON object:
                 {
+                   "title" : "....",
+                   "description" : "...",
                    "keywords": ["..."],
-                   "requiredTags": ["..."]
+                   "skills": ["..."],
+                   "requiredTags" : ["..."]
+                   "
                 }
 
                 Output rules
                 Output JSON only (no prose).
-                keywords → 6–14 concise, lowercase phrases (deduplicated). Prefer: jurisdiction, sector, legal objects, binding provisions, dates, numbers, affected parties, operational constraints.
-                requiredTags → 8–15 routing tags in key:value form, chosen from the controlled vocabulary below. Include at least one skill:* tag.
+                keywords → 6-14 concise, lowercase phrases (deduplicated). Prefer: jurisdiction, sector, legal objects, binding provisions, dates, numbers, affected parties, operational constraints.
+                requiredTags → 8-15 routing tags in key:value form, chosen from the controlled vocabulary below. Include at least one skill:* tag.
                 Controlled vocabulary (aligns with your agents)
                 Context & scope
                 jurisdiction:<iso2> (e.g., jurisdiction:pl)
@@ -143,6 +147,8 @@ public class PlannerPromptBuilder {
                 skill:edu-scheduling-optimizer — scheduling/grouping under legal constraints
                 skill:teacher-workforce-planner — staffing, recruitment, training projections
                 skill:budget-estimation — quantify cost items (e.g., extra FTE, capex/opex)
+
+                Description - provide a summary of the product idea based on the document
 
                 Quality checks
                 Use ISO dates (YYYY-MM-DD).

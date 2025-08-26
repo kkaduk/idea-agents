@@ -1,11 +1,12 @@
 package io.a2a.poc.agents.idea.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import io.a2a.poc.agents.idea.service.ProductIdeaWorkflowOrchestrator.A2AReceptionistSkill;
 import io.a2a.poc.agents.idea.service.mapper.SkillsSearchMapper;
@@ -25,7 +26,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ProductIdeaWorkflowOrchestrator {
 
-        private final WebClient webClient;
+        // private final WebClient webClient;
 
         @Autowired
         private PlannerService plannerService;
@@ -65,56 +66,54 @@ public class ProductIdeaWorkflowOrchestrator {
                                 .doOnNext(skills -> log.info("A2A Agent Skills discovered: {}", skills));
         }
 
-        public Mono<String> skillToExecute(String newIdea) {
-        //   public Mono<String> orchestrateProductDevelopment(String newIdea) {
-                // String sessionId = UUID.randomUUID().toString();
+        public Mono<TaskOrchestrationResponse> skillToExecute(String newIdea) {
                 double minConfidence = 0.1;
 
                 Mono<SkillsSearch> skillsSearchMono = plannerService.prepareAgentSkills(newIdea)
-                        .defaultIfEmpty(Map.of())
-                        .map(map -> new SkillsSearch(
-                                (List<String>) SkillsSearchMapper.toStringList(map.get("keywords")),
-                                (List<String>) SkillsSearchMapper.toStringList(map.get("requiredTags"))
-                ));
+                                .defaultIfEmpty(Map.of())
+                                .map(map -> new SkillsSearch(
+                                                (List<String>) SkillsSearchMapper.toStringList(map.get("keywords")),
+                                                (List<String>) SkillsSearchMapper
+                                                                .toStringList(map.get("requiredTags"))));
 
                 return skillsSearchMono
-                        .flatMap(this::getA2AAgentSkills)
-                        .map(skills -> skills.stream()
-                                .filter(skill -> skill.confidence != null && skill.confidence >= minConfidence)
-                                .toList())
-                        .flatMap(filteredSkills -> {
-                                UserTask task = new UserTask(
-                                        "Draft a new banking savings product from fresh legislation",
-                                        "Analyze the new consumer credit amendment 2025 and propose a product idea suitable for millennials.",
-                                        Map.of("country", "PL", "segment", "millennials"));
-                                return plannerService.plan(task, filteredSkills, minConfidence)
-                                        .map(planMap -> {
-                                                try {
-                                                        return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(planMap);
-                                                } catch (Exception e) {
-                                                        return "{\"serialization_error\": \"" + e.getMessage() + "\"}";
-                                                }
-                                        });
-                        });
-                        
+                                .flatMap(this::getA2AAgentSkills)
+                                .map(skills -> skills.stream()
+                                                .filter(skill -> skill.confidence != null
+                                                                && skill.confidence >= minConfidence)
+                                                .toList())
+                                .flatMap(filteredSkills -> plannerService.createIdea(newIdea).flatMap(ideaMap -> {
+                                        String idea = (String) ideaMap.get("description");
+                                        String skills = (String) ideaMap.get("skills");
+                                        Map<String, Object> skillsMap = Arrays.stream(skills.split(","))
+                                                        .map(String::trim)
+                                                        .collect(Collectors.toMap(s -> s, s -> s));
+
+                                        UserTask task = new UserTask(
+                                                        "Draft a new banking product from fresh legislation",
+                                                        idea,
+                                                        skillsMap);
+                                        return plannerService.plan(task, filteredSkills, minConfidence)
+                                                        .map(planMap -> {
+                                                                try {
+                                                                        return new com.fasterxml.jackson.databind.ObjectMapper()
+                                                                                        .convertValue(planMap,
+                                                                                                        TaskOrchestrationResponse.class);
+                                                                } catch (Exception e) {
+                                                                        throw new RuntimeException(
+                                                                                        "Failed to convert planMap to TaskOrchestrationResponse",
+                                                                                        e);
+                                                                }
+                                                        });
+                                }));
+
         }
 
-        public Mono<String> orchestrateProductDevelopment(String idea){
+        public Mono<String> orchestrateProductDevelopment(String idea) {
                 return skillToExecute(idea)
-                        .flatMap(planJson -> {
-                                try {
-                                        TaskOrchestrationResponse response =
-                                                new com.fasterxml.jackson.databind.ObjectMapper()
-                                                        .readValue(planJson, TaskOrchestrationResponse.class);
-                                        String result = execution.dispatchAndExecuteTask(response);
-                                        return Mono.just(result);
-                                } catch (Exception e) {
-                                        return Mono.error(e);
-                                }
-                        });
+                                .map(response -> execution.dispatchAndExecuteTask(response));
         }
 
-     
         public record A2AReceptionistSkill(
                         String id,
                         String agentName,
