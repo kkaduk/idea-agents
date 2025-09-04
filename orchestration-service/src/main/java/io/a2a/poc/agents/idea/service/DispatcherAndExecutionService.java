@@ -212,7 +212,7 @@ public class DispatcherAndExecutionService {
         }
 
         if (response != null && response.getResult() != null) {
-            return response.getResult();
+            return response.getResult().getParts().get(0).toString();
         } else {
             throw new RuntimeException(
                     String.format("No result received from skill %s:%s",
