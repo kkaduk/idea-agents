@@ -2,10 +2,11 @@ import React, { useEffect, useState, useRef } from "react";
 
 const AGENTS = [
   { id: "human-agent", display: "Human Agent", color: "#ffc800" },
-  { id: "idea-creator-agent", display: "Creator Agent", color: "#73f7dd" },
-  { id: "idea-critic-agent", display: "Critic Agent", color: "#f35b53" },
-  { id: "idea-finalizer-agent", display: "Finalizer Agent", color: "#d473f7" },
-  { id: "risk-estimator-agent", display: "Risk Estimator", color: "#6fa8dc" },
+  { id: "idea-creator-agent", display: "Idea Creator", color: "#90ee90" },
+  { id: "idea-critic-agent", display: "Idea Critic", color: "#ff8080" },
+  { id: "idea-finalizer-agent", display: "Idea Finalizer", color: "#b080ff" },
+  { id: "risk-estimator-agent", display: "Risk Estimator", color: "#ffb266" },
+  { id: "orchestration-service", display: "Orchestration Service", color: "#188fff" },
 ];
 
 const LOG_POLL_INTERVAL = 3000; // ms

@@ -30,7 +30,8 @@ public class AgentLogController {
             "idea-creator-agent",
             "idea-critic-agent",
             "idea-finalizer-agent",
-            "risk-estimator-agent"
+            "risk-estimator-agent",
+            "orchestration-service"
     );
 
     @GetMapping(value = "/{agent}", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -42,8 +43,11 @@ public class AgentLogController {
             return ResponseEntity.badRequest()
                     .body("Unknown agent: " + agent);
         }
-        File logFile = new File("../" + LOG_DIR, agent + ".out");
         String currentDir = Paths.get("").toAbsolutePath().toString();
+        File logFile = new File(currentDir + "/../" + LOG_DIR, agent + ".out");
+        
+        // System.out.println("KK path: " + currentDir);
+        // System.out.println("KK logfile: " + logFile);
         if (!logFile.exists()) {
             return ResponseEntity.ok("Log file not found: " + logFile.getName());
         }
@@ -58,7 +62,9 @@ public class AgentLogController {
         try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null && result.size() < lines) {
-                result.addFirst(line);
+                if (line.contains("io.a2a")) {
+                    result.addFirst(line);
+                }
             }
         } catch (IOException e) {
             return List.of("Failed to read log: " + e.getMessage());
