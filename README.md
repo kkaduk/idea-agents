@@ -1,3 +1,42 @@
+## Multi-Agent Strategy Update
+
+### Overview  
+The latest commit introduces an update to the **multi-agent strategy**.  
+This enhancement focuses on **task distribution**, where tasks are now planned and executed through a agent's created task plan.  
+
+### Current Status  
+Please note that this implementation is **experimental** and not yet representative of what will be deployed in an enterprise-grade solution.  
+
+Several challenges remain open, including:  
+- Designing a robust **memory strategy**  
+- Establishing a rigorous **implementation logic**  
+- Ensuring long-term **scalability and reliability**  
+
+### Roadmap & Outlook  
+While the concept of **evolved autonomous agents** represents a promising future for business workflows,  
+the current implementation should be viewed as a **demo** environment.  
+
+Its purpose is to provide a space to **experiment** with autonomous task planning and execution,  
+while we continue to build toward a production-ready solution through incremental, step-by-step improvements.  
+
+
+## Current Work: Reusable Agents and MCP Integration
+
+### Overview  
+The current development effort is focused on preparing **reusable agents** designed for proper connection to **MCP servers**, with the goal of providing a **practical, production-ready solution**.  
+
+### Objectives  
+- Establish a solid foundation for building a **multi-agent system**.  
+- Ensure that each **single agent** is effective on its own.  
+- Validate that agents **interact appropriately with their environment** before scaling to multi-agent collaboration.  
+
+### Next Steps  
+The priority is to finalize the implementation of a **robust single agent**.  
+Once this is achieved, the architecture can evolve into a **fully integrated multi-agent system** supported by MCP connectivity.  
+
+
+
+
 # Idea creator
 
 Minimal multi-module setup for the Idea of an intangible product.

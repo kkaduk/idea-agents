@@ -1,0 +1,107 @@
+.dashboard-root {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 10px 60px 10px;
+}
+
+h1 {
+  margin-bottom: 0.6em;
+  font-size: 2.2em;
+  letter-spacing: 1px;
+  color: #f4d35e;
+}
+
+.idea-input-section {
+  margin-bottom: 2em;
+  background: #343963;
+  padding: 18px 16px 16px 16px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.idea-input-section form {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.idea-input {
+  font-size: 1.1em;
+  padding: 9px 14px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  width: 340px;
+  background: #151724;
+  color: #f6f5f2;
+}
+
+.idea-input:focus {
+  box-shadow: 0 1px 7px #f4d35e54;
+}
+
+.orchestrate-btn {
+  background: #f4d35e;
+  color: #1a1b26;
+  font-weight: bold;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 22px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.orchestrate-btn:hover {
+  background: #ffc800;
+}
+
+.orchestrate-status {
+  margin-top: 10px;
+  min-height: 16px;
+  color: #eaeaea;
+  font-size: 0.99em;
+}
+
+.logs-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 18px;
+}
+
+.log-panel {
+  flex: 1 1 290px;
+  min-width: 260px;
+  max-width: 420px;
+  background: #232946;
+  border-radius: 11px;
+  box-shadow: 0 2px 20px #11131d42;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  height: 380px;
+  overflow: hidden;
+}
+
+.log-header {
+  padding: 6px 14px;
+  font-size: 1.13em;
+  letter-spacing: 0.5px;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+}
+
+.log-output {
+  flex: 1;
+  margin: 0;
+  padding: 10px 13px 8px 13px;
+  font-size: 1.02em;
+  line-height: 1.42em;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+}

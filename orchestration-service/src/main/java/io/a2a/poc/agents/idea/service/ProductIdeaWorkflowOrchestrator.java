@@ -97,7 +97,7 @@ public class ProductIdeaWorkflowOrchestrator {
      */
     public Mono<TaskOrchestrationResponse> determineSkillsToExecute(String newIdea, String correlationId) {
         log.info("[{}] Determining skills to execute for idea: {}", correlationId, 
-                newIdea.substring(0, Math.min(newIdea.length(), 100)) + "...");
+                newIdea.substring(0, Math.min(newIdea.length(), 500)) + "...");
 
         return prepareSkillsSearch(newIdea, correlationId)
                 .flatMap(skillsSearch -> getFilteredSkills(skillsSearch, correlationId))

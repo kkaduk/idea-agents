@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#Mostly AI generated, FIX-ME
 set -euo pipefail
 
 services=(
@@ -6,7 +7,7 @@ services=(
   "idea-creator-agent"
   "idea-critic-agent"
   "idea-finalizer-agent"
-  # "orchestration-service"
+  "orchestration-service"
   "risk-estimator-agent"
 )
 
@@ -31,3 +32,11 @@ for s in "${services[@]}"; do
   )
   echo "→ PID $(cat pids/$s.pid) for $s"
 done
+
+# (opcjonalnie) front-end
+if [ -d "dashboard" ]; then
+  cd "dashboard"
+  npm start > "../logs/dashboard.out" 2>&1 &
+  echo $! > "../pids/dashboard.pid"
+  echo "→ PID $(cat "../pids/dashboard.pid") for dashboard"
+fi
