@@ -37,3 +37,4 @@ target/starter-webflux-server.log
 .repomix/
 repomix-output.txt
 logs/*
+pids/*

@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
@@ -44,7 +42,8 @@ public class AgentLogController {
                     .body("Unknown agent: " + agent);
         }
         String currentDir = Paths.get("").toAbsolutePath().toString();
-        File logFile = new File(currentDir + "/../" + LOG_DIR, agent + ".out");
+        // File logFile = new File(currentDir + "/../" + LOG_DIR, agent + ".out");
+        File logFile = new File(LOG_DIR, agent + ".out");  //IN debug Mode (KK)
         
         // System.out.println("KK path: " + currentDir);
         // System.out.println("KK logfile: " + logFile);
@@ -57,19 +56,37 @@ public class AgentLogController {
         return ResponseEntity.ok(joined);
     }
 
-    private List<String> tail(File file, int lines) {
-        Deque<String> result = new ArrayDeque<>(lines);
-        try (ReversedLinesFileReader reader = new ReversedLinesFileReader(file, StandardCharsets.UTF_8)) {
+    private List<String> tail(File file, int entriesCount) {
+        List<List<String>> entries = new ArrayList<>();
+        try (java.io.BufferedReader reader = java.nio.file.Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+            List<String> currentEntry = null;
             String line;
-            while ((line = reader.readLine()) != null && result.size() < lines) {
+            while ((line = reader.readLine()) != null) {
                 if (line.contains("io.a2a")) {
-                    result.addFirst(line);
+                    // New entry found
+                    if (currentEntry != null && !currentEntry.isEmpty()) {
+                        entries.add(currentEntry);
+                    }
+                    currentEntry = new ArrayList<>();
                 }
+                if (currentEntry != null) {
+                    currentEntry.add(line);
+                }
+            }
+            // Add final entry if file does not end with "io.a2a"
+            if (currentEntry != null && !currentEntry.isEmpty()) {
+                entries.add(currentEntry);
             }
         } catch (IOException e) {
             return List.of("Failed to read log: " + e.getMessage());
         }
-        return new ArrayList<>(result);
+        // Get last N entries
+        List<String> result = new ArrayList<>();
+        int fromIndex = Math.max(0, entries.size() - entriesCount);
+        for (int i = fromIndex; i < entries.size(); i++) {
+            result.addAll(entries.get(i));
+        }
+        return result;
     }
 
     // Helper: Read file in reverse order (tail)

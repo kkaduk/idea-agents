@@ -31,7 +31,7 @@ public class DispatcherAndExecutionService {
     public reactor.core.publisher.Mono<String> dispatchAndExecuteTask(TaskOrchestrationResponse orchestrationResponse) {
         return reactor.core.publisher.Mono.fromCallable(() -> {
             try {
-                Map<String, Object> results = new HashMap<>();
+                Map<String, String> results = new HashMap<>();
                 List<TaskOrchestrationResponse.SelectedSkill> skills = orchestrationResponse.selectedSkills();
                 List<TaskOrchestrationResponse.SelectedSkill> executionOrder = topologicalSort(skills);
                 results = executeInDependencyOrder(executionOrder);
@@ -105,15 +105,15 @@ public class DispatcherAndExecutionService {
         return result;
     }
 
-    private Map<String, Object> executeInDependencyOrder(List<TaskOrchestrationResponse.SelectedSkill> orderedSkills) {
-        Map<String, Object> results = new LinkedHashMap<>();
+    private Map<String, String> executeInDependencyOrder(List<TaskOrchestrationResponse.SelectedSkill> orderedSkills) {
+        Map<String, String> results = new LinkedHashMap<>();
 
         for (TaskOrchestrationResponse.SelectedSkill skill : orderedSkills) {
             try {
                 log.info("Executing step: {} with agent: {} and skill: {}",
                         skill.stepId(), skill.agentName(), skill.skillId());
 
-                Object result = executeSkillWithRetry(skill, results);
+                String result = executeSkillWithRetry(skill, results);
                 results.put(skill.stepId(), result);
 
                 log.info("Successfully completed step: {}", skill.stepId());
@@ -129,8 +129,8 @@ public class DispatcherAndExecutionService {
         return results;
     }
 
-    private Object executeSkillWithRetry(TaskOrchestrationResponse.SelectedSkill skill,
-            Map<String, Object> previousResults) {
+    private String executeSkillWithRetry(TaskOrchestrationResponse.SelectedSkill skill,
+            Map<String, String> previousResults) {
         int maxAttempts = skill.retries() != null && skill.retries().maxAttempts() != null
                 ? skill.retries().maxAttempts()
                 : 1;
@@ -164,7 +164,7 @@ public class DispatcherAndExecutionService {
                 lastException);
     }
 
-    private Object executeSkill(TaskOrchestrationResponse.SelectedSkill skill, Map<String, Object> previousResults) {
+    private String executeSkill(TaskOrchestrationResponse.SelectedSkill skill, Map<String, String> previousResults) {
     
         List<String> consolidatedInput = new ArrayList<>();
 
@@ -192,8 +192,8 @@ public class DispatcherAndExecutionService {
         SkillInvocationRequest skillRequest = SkillInvocationRequest.builder()
                 .agentName(skill.agentName())
                 .skillId(skill.skillId())
-                .input(consolidatedInput)
-                .contextId(generateContextId(skill))
+                .input(consolidatedInput) //FIXME cannot be empty
+                // .contextId(generateContextId(skill))
                 .metadata(createMetadata(skill))
                 .build();
 
@@ -212,7 +212,7 @@ public class DispatcherAndExecutionService {
         }
 
         if (response != null && response.getResult() != null) {
-            return response.getResult().getParts().get(0).toString();
+            return response.getResult().getParts().get(0).toString(); //FIXME check!
         } else {
             throw new RuntimeException(
                     String.format("No result received from skill %s:%s",
@@ -240,7 +240,7 @@ public class DispatcherAndExecutionService {
         return metadata;
     }
 
-    private String consolidateResults(Map<String, Object> results, String taskId) {
+    private String consolidateResults(Map<String, String> results, String taskId) {
         StringBuilder consolidatedResult = new StringBuilder();
         consolidatedResult.append(String
                 .format("Task '%s' execution completed using dependency-based acyclic graph execution.\n\n", taskId));
@@ -248,6 +248,10 @@ public class DispatcherAndExecutionService {
         long successfulSteps = results.values().stream()
                 .filter(result -> !result.toString().startsWith("Error:"))
                 .count();
+// This line of code is formatting and appending a summary of the execution results to the
+// `consolidatedResult` StringBuilder. It shows the number of steps that were successfully completed
+// out of the total number of steps. The `%d` placeholders are replaced with the actual counts of
+// successful steps and total steps using the `String.format` method.
 
         consolidatedResult.append(String.format("Execution Summary: %d/%d steps completed successfully\n\n",
                 successfulSteps, results.size()));

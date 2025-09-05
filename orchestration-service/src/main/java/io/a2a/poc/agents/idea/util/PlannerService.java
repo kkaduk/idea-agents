@@ -52,7 +52,7 @@ public class PlannerService {
                 });
     }
 
-        public Mono<Map<String, Object>> createIdea(String document) {
+    public Mono<Map<String, Object>> createIdea(String document) {
 
         String prompt = PlannerPromptBuilder.buildSkillsPrompt(document);
 
@@ -66,8 +66,6 @@ public class PlannerService {
                     }
                 });
     }
-
-
 
     public Mono<Map<String, Object>> prepareAgentSkills(String idea) {
 
@@ -84,10 +82,7 @@ public class PlannerService {
                 });
     }
 
-
-
-
-    //****************For future use ********** */
+    // ****************For future use ********** */
 
     private CompletableFuture<String> invokeSkillByReceptionist(String agentName, String skillId,
             List<String> input) {
