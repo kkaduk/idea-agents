@@ -178,20 +178,20 @@ public class ProductIdeaWorkflowOrchestrator {
     /**
      * Orchestrates the complete product development workflow
      */
-    public Mono<String> orchestrateProductDevelopment(String idea) {
+    public reactor.core.publisher.Mono<String> orchestrateProductDevelopment(String idea) {
         String correlationId = generateCorrelationId();
         log.info("[{}] Starting product development orchestration for idea", correlationId);
-        
+
         return determineSkillsToExecute(idea, correlationId)
                 .flatMap(response -> {
                     log.info("[{}] Dispatching execution for orchestrated plan", correlationId);
                     return execution.dispatchAndExecuteTask(response)
-                            .doOnNext(result -> 
+                            .doOnNext(result ->
                                 log.info("[{}] Product development orchestration completed successfully", correlationId))
-                            .doOnError(error -> 
+                            .doOnError(error ->
                                 log.error("[{}] Product development orchestration failed", correlationId, error));
                 })
-                .onErrorMap(throwable -> 
+                .onErrorMap(throwable ->
                     new RuntimeException("Product development orchestration failed", throwable));
     }
 

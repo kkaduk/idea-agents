@@ -29,22 +29,19 @@ public class DispatcherAndExecutionService {
     Receptionist receptionist;
 
     public reactor.core.publisher.Mono<String> dispatchAndExecuteTask(TaskOrchestrationResponse orchestrationResponse) {
-        return reactor.core.publisher.Mono.fromCallable(() -> {
-            try {
-                Map<String, String> results = new HashMap<>();
-                List<TaskOrchestrationResponse.SelectedSkill> skills = orchestrationResponse.selectedSkills();
-                // If you want to process descriptions from each skill input, do it here.
-                // skills.forEach(skill -> {
-                //     skill.input().add(orchestrationResponse.userTask().description());
-                // });
-                List<TaskOrchestrationResponse.SelectedSkill> executionOrder = topologicalSort(skills);
-                results = executeInDependencyOrder(executionOrder);
-                return consolidateResults(results, orchestrationResponse.taskId());
-            } catch (Exception e) {
-                log.error("Error executing task orchestration: {}", e.getMessage(), e);
-                return String.format("Task execution failed: %s", e.getMessage());
-            }
-        });
+        try {
+            List<TaskOrchestrationResponse.SelectedSkill> skills = orchestrationResponse.selectedSkills();
+            List<TaskOrchestrationResponse.SelectedSkill> executionOrder = topologicalSort(skills);
+            return executeInDependencyOrder(executionOrder)
+                .map(results -> consolidateResults(results, orchestrationResponse.taskId()))
+                .onErrorResume(e -> {
+                    log.error("Error executing task orchestration: {}", e.getMessage(), e);
+                    return reactor.core.publisher.Mono.just(String.format("Task execution failed: %s", e.getMessage()));
+                });
+        } catch (Exception e) {
+            log.error("Error executing task orchestration: {}", e.getMessage(), e);
+            return reactor.core.publisher.Mono.just(String.format("Task execution failed: %s", e.getMessage()));
+        }
     }
 
     private List<TaskOrchestrationResponse.SelectedSkill> topologicalSort(
@@ -109,31 +106,27 @@ public class DispatcherAndExecutionService {
         return result;
     }
 
-    private Map<String, String> executeInDependencyOrder(List<TaskOrchestrationResponse.SelectedSkill> orderedSkills) {
+    private reactor.core.publisher.Mono<Map<String, String>> executeInDependencyOrder(List<TaskOrchestrationResponse.SelectedSkill> orderedSkills) {
         Map<String, String> results = new LinkedHashMap<>();
-
-        for (TaskOrchestrationResponse.SelectedSkill skill : orderedSkills) {
-            try {
-                log.info("Executing step: {} with agent: {} and skill: {}",
-                        skill.stepId(), skill.agentName(), skill.skillId());
-
-                String result = executeSkillWithRetry(skill, results);
-                results.put(skill.stepId(), result);
-
-                log.info("Successfully completed step: {}", skill.stepId());
-
-            } catch (Exception e) {
-                log.error("Failed to execute step: {} - {}", skill.stepId(), e.getMessage());
-                results.put(skill.stepId(), "Error: " + e.getMessage());
-
-                // FIXME: (KK) For now, we continue with remaining tasks
-            }
-        }
-
-        return results;
+        // Use Flux sequentially to ensure dependency order, with state in results map
+        return reactor.core.publisher.Flux.fromIterable(orderedSkills)
+            .concatMap(skill ->
+                executeSkillWithRetry(skill, results)
+                    .doOnNext(result -> {
+                        log.info("Executing step: {} with agent: {} and skill: {}", skill.stepId(), skill.agentName(), skill.skillId());
+                        results.put(skill.stepId(), result);
+                        log.info("Successfully completed step: {}", skill.stepId());
+                    })
+                    .onErrorResume(e -> {
+                        log.error("Failed to execute step: {} - {}", skill.stepId(), e.getMessage());
+                        results.put(skill.stepId(), "Error: " + e.getMessage());
+                        return reactor.core.publisher.Mono.just("Error: " + e.getMessage());
+                    })
+            )
+            .then(reactor.core.publisher.Mono.fromCallable(() -> results));
     }
 
-    private String executeSkillWithRetry(TaskOrchestrationResponse.SelectedSkill skill,
+    private reactor.core.publisher.Mono<String> executeSkillWithRetry(TaskOrchestrationResponse.SelectedSkill skill,
             Map<String, String> previousResults) {
         int maxAttempts = skill.retries() != null && skill.retries().maxAttempts() != null
                 ? skill.retries().maxAttempts()
@@ -142,36 +135,19 @@ public class DispatcherAndExecutionService {
                 ? skill.retries().backoffSec()
                 : 1;
 
-        Exception lastException = null;
-
-        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try {
-                return executeSkill(skill, previousResults);
-            } catch (Exception e) {
-                lastException = e;
-                log.warn("Attempt {}/{} failed for step {}: {}",
-                        attempt, maxAttempts, skill.stepId(), e.getMessage());
-
-                if (attempt < maxAttempts) {
-                    try {
-                        Thread.sleep(backoffSec * 1000L);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("Interrupted during retry backoff", ie);
-                    }
-                }
-            }
-        }
-
-        throw new RuntimeException(
-                String.format("Failed after %d attempts for step %s", maxAttempts, skill.stepId()),
-                lastException);
+        return executeSkill(skill, previousResults)
+            .retryWhen(reactor.util.retry.Retry.backoff(maxAttempts - 1, java.time.Duration.ofSeconds(backoffSec))
+                .doBeforeRetry(retrySignal ->
+                    log.warn("Attempt {}/{} failed for step {}: {}",
+                        retrySignal.totalRetries() + 1, maxAttempts, skill.stepId(), retrySignal.failure().getMessage())
+                )
+            );
     }
 
-    private String executeSkill(TaskOrchestrationResponse.SelectedSkill skill, Map<String, String> previousResults) {
-    
+    private reactor.core.publisher.Mono<String> executeSkill(TaskOrchestrationResponse.SelectedSkill skill, Map<String, String> previousResults) {
+
         List<String> consolidatedInput = new ArrayList<>();
-        
+
         if (skill.dependsOn() != null) {
             for (String dependency : skill.dependsOn()) {
                 String dependencyResult = previousResults.get(dependency);
@@ -189,40 +165,32 @@ public class DispatcherAndExecutionService {
             }
         }
 
-        // if (consolidatedInput.isEmpty()) {
-        //     consolidatedInput.add("No specific input provided for this skill execution");
-        // }
-
         SkillInvocationRequest skillRequest = SkillInvocationRequest.builder()
                 .agentName(skill.agentName())
                 .skillId(skill.skillId())
                 .input(consolidatedInput)
-                // .contextId(generateContextId(skill)) //Must be empty if we aim to invoke skill by Receptionist!
+                // .contextId(generateContextId(skill))
                 .metadata(createMetadata(skill))
                 .build();
 
-        SkillInvocationResponse response;
         int timeoutSec = skill.timeoutSec() != null ? skill.timeoutSec() : 120; // default 2 minutes
 
-        try {
-            response = receptionist.invokeAgentSkill(skillRequest)
-                    .timeout(Duration.ofSeconds(timeoutSec))
-                    .block();
-                    
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    String.format("Skill invocation failed for %s:%s - %s",
-                            skill.agentName(), skill.skillId(), e.getMessage()),
-                    e);
-        }
-
-        if (response != null && response.getResult() != null) {
-            return response.getResult().getParts().get(0).toString(); //FIXME check!
-        } else {
-            throw new RuntimeException(
-                    String.format("No result received from skill %s:%s",
+        return reactor.core.publisher.Mono.fromCallable(() -> receptionist.invokeAgentSkill(skillRequest)
+                .timeout(Duration.ofSeconds(timeoutSec))
+                .block())
+            .map(response -> {
+                if (response != null && response.getResult() != null) {
+                    Object part = response.getResult().getParts().get(0);
+                    return part instanceof io.a2a.spec.TextPart ? ((io.a2a.spec.TextPart) part).getText() : part.toString();
+                } else {
+                    throw new RuntimeException(
+                        String.format("No result received from skill %s:%s",
                             skill.agentName(), skill.skillId()));
-        }
+                }
+            })
+            .onErrorMap(e -> new RuntimeException(
+                String.format("Skill invocation failed for %s:%s - %s",
+                    skill.agentName(), skill.skillId(), e.getMessage()), e));
     }
 
     private String generateContextId(TaskOrchestrationResponse.SelectedSkill skill) {

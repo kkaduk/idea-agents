@@ -24,7 +24,7 @@ public class ProductIdeaController {
     public Mono<ResponseEntity<String>> orchestrateProductDevelopment(@RequestBody String idea) {
         String correlationId = generateCorrelationId();
         log.info("[{}] Received product development request", correlationId);
-        
+
         return orchestrator.orchestrateProductDevelopment(idea)
                 .map(result -> {
                     log.info("[{}] Successfully completed product development orchestration", correlationId);
