@@ -26,7 +26,7 @@ import reactor.netty.http.client.HttpClient;
 @EnableRetry
 public class AgentConfig {
 
-        @Value("${app.openai.timeout.read:3600}")
+        @Value("${app.openai.timeout.read:360000}")
         private int readTimeoutSeconds;
 
         @Value("${app.openai.timeout.connect:30000}")

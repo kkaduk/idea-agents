@@ -10,13 +10,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import io.a2a.poc.agents.idea.util.PlannerPromptBuilder.UserTask;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record TaskOrchestrationResponse(
         String taskId,
         ExecutionMode executionMode,
         List<SelectedSkill> selectedSkills,
-        String reason
+        String reason,
+        UserTask userTask
 ) {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record SelectedSkill(

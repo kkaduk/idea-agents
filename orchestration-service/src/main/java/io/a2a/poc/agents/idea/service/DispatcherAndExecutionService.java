@@ -33,6 +33,10 @@ public class DispatcherAndExecutionService {
             try {
                 Map<String, String> results = new HashMap<>();
                 List<TaskOrchestrationResponse.SelectedSkill> skills = orchestrationResponse.selectedSkills();
+                // If you want to process descriptions from each skill input, do it here.
+                // skills.forEach(skill -> {
+                //     skill.input().add(orchestrationResponse.userTask().description());
+                // });
                 List<TaskOrchestrationResponse.SelectedSkill> executionOrder = topologicalSort(skills);
                 results = executeInDependencyOrder(executionOrder);
                 return consolidateResults(results, orchestrationResponse.taskId());
@@ -167,16 +171,10 @@ public class DispatcherAndExecutionService {
     private String executeSkill(TaskOrchestrationResponse.SelectedSkill skill, Map<String, String> previousResults) {
     
         List<String> consolidatedInput = new ArrayList<>();
-
-        if (skill.input() != null && !skill.input().isEmpty()) {
-            skill.input().forEach((key, value) -> {
-                consolidatedInput.add(String.format("%s: %s", key, value != null ? value.toString() : "null"));
-            });
-        }
-
+        
         if (skill.dependsOn() != null) {
             for (String dependency : skill.dependsOn()) {
-                Object dependencyResult = previousResults.get(dependency);
+                String dependencyResult = previousResults.get(dependency);
                 if (dependencyResult != null) {
                     consolidatedInput.add(String.format("Output from step '%s': %s", dependency, dependencyResult));
                 } else {
@@ -185,15 +183,21 @@ public class DispatcherAndExecutionService {
             }
         }
 
-        if (consolidatedInput.isEmpty()) {
-            consolidatedInput.add("No specific input provided for this skill execution");
+        if (skill.input() != null) {
+            for (Map.Entry<String, Object> entry : skill.input().entrySet()) {
+                consolidatedInput.add(String.format("Input '%s': %s", entry.getKey(), entry.getValue()));
+            }
         }
+
+        // if (consolidatedInput.isEmpty()) {
+        //     consolidatedInput.add("No specific input provided for this skill execution");
+        // }
 
         SkillInvocationRequest skillRequest = SkillInvocationRequest.builder()
                 .agentName(skill.agentName())
                 .skillId(skill.skillId())
-                .input(consolidatedInput) //FIXME cannot be empty
-                // .contextId(generateContextId(skill))
+                .input(consolidatedInput)
+                // .contextId(generateContextId(skill)) //Must be empty if we aim to invoke skill by Receptionist!
                 .metadata(createMetadata(skill))
                 .build();
 
@@ -204,6 +208,7 @@ public class DispatcherAndExecutionService {
             response = receptionist.invokeAgentSkill(skillRequest)
                     .timeout(Duration.ofSeconds(timeoutSec))
                     .block();
+                    
         } catch (Exception e) {
             throw new RuntimeException(
                     String.format("Skill invocation failed for %s:%s - %s",

@@ -8,7 +8,6 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.reactive.function.client.WebClientCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +25,7 @@ import reactor.netty.http.client.HttpClient;
 @EnableRetry
 public class AgentConfig {
 
-        @Value("${app.openai.timeout.read:3600}")
+        @Value("${app.openai.timeout.read:360000}")
         private int readTimeoutSeconds;
 
         @Value("${app.openai.timeout.connect:30000}")

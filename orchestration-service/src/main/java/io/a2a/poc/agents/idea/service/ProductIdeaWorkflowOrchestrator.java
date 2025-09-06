@@ -169,7 +169,7 @@ public class ProductIdeaWorkflowOrchestrator {
                     log.debug("[{}] Created user task with {} skills", correlationId, skillsMap.size());
                     
                     return plannerService.plan(task, filteredSkills, MIN_CONFIDENCE_THRESHOLD)
-                            .map(planMap -> convertToTaskOrchestrationResponse(planMap, correlationId));
+                            .map(planMap -> convertToTaskOrchestrationResponse(planMap, correlationId, task));
                 })
                 .doOnError(error -> 
                     log.error("[{}] Failed to create execution plan", correlationId, error));
@@ -218,10 +218,18 @@ public class ProductIdeaWorkflowOrchestrator {
         }
     }
 
-    private TaskOrchestrationResponse convertToTaskOrchestrationResponse(Map<String, Object> planMap, String correlationId) {
+    private TaskOrchestrationResponse convertToTaskOrchestrationResponse(Map<String, Object> planMap, String correlationId, UserTask userTask) {
         try {
-            return new com.fasterxml.jackson.databind.ObjectMapper()
-                    .convertValue(planMap, TaskOrchestrationResponse.class);
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            TaskOrchestrationResponse base = mapper.convertValue(planMap, TaskOrchestrationResponse.class);
+            // Create a response with the UserTask explicitly set
+            return new TaskOrchestrationResponse(
+                base.taskId(),
+                base.executionMode(),
+                base.selectedSkills(),
+                base.reason(),
+                userTask
+            );
         } catch (Exception e) {
             log.error("[{}] Failed to convert planMap to TaskOrchestrationResponse", correlationId, e);
             throw new RuntimeException("Failed to convert planMap to TaskOrchestrationResponse", e);

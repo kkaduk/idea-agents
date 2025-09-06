@@ -26,7 +26,7 @@ import reactor.netty.http.client.HttpClient;
 @EnableRetry
 public class AgentConfig {
 
-        @Value("${app.openai.timeout.read:360000}")
+        @Value("${app.openai.timeout.read:36000}")
         private int readTimeoutSeconds;
 
         @Value("${app.openai.timeout.connect:30000}")
@@ -57,26 +57,8 @@ public class AgentConfig {
         @Retryable(value = {
                         io.netty.handler.timeout.ReadTimeoutException.class }, maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2.0))
         public ChatClient chatClient(OpenAiChatModel openAiChatModel) {
-                MessageWindowChatMemory mem = MessageWindowChatMemory.builder()
-                                .maxMessages(10)
-                                .build();
                 return ChatClient.builder(openAiChatModel)
                                 .defaultAdvisors(new SimpleLoggerAdvisor())
-                                // .defaultToolCallbacks(tools)
-                                .defaultAdvisors(MessageChatMemoryAdvisor.builder(mem)
-                                                .build())
-                                .defaultSystem("""
-                                                You are a senior banking executive (CEO/CTO level) with 15+ years of experience in strategic decision making.
-                                                You combine analytical rigor with intuitive judgment, considering:
-                                                - Strategic fit with corporate vision and portfolio
-                                                - Market timing and competitive dynamics
-                                                - Organizational capability and cultural alignment
-                                                - Risk appetite and stakeholder expectations
-                                                - Long-term value creation and sustainability
-
-                                                Your decisions are informed by data but also consider intangible factors that only senior leadership can evaluate.
-                                                You provide decisive leadership with clear rationale and actionable guidance.
-                                                """)
                                 .build();
         }
 }
