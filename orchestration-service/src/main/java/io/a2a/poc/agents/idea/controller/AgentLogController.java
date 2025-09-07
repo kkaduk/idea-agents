@@ -42,8 +42,8 @@ public class AgentLogController {
                     .body("Unknown agent: " + agent);
         }
         String currentDir = Paths.get("").toAbsolutePath().toString();
-        // File logFile = new File(currentDir + "/../" + LOG_DIR, agent + ".out");
-        File logFile = new File(LOG_DIR, agent + ".out");  //IN debug Mode (KK)
+        File logFile = new File(currentDir + "/../" + LOG_DIR, agent + ".out");
+        // File logFile = new File(LOG_DIR, agent + ".out");  //IN debug Mode (KK)
         
         // System.out.println("KK path: " + currentDir);
         // System.out.println("KK logfile: " + logFile);

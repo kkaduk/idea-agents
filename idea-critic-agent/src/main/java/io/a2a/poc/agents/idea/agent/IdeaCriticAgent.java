@@ -33,8 +33,8 @@ public class IdeaCriticAgent {
         inputModes = {"text"},
         outputModes = {"text"}
     )
-    public CompletableFuture<String> comprehensiveProductCritique(String productIdea) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> comprehensiveProductCritique(String productIdea) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 log.info("Performing comprehensive product critique with AI for: {}", 
                         productIdea.substring(0, Math.min(100, productIdea.length())));
@@ -112,7 +112,6 @@ public class IdeaCriticAgent {
                     .content();
 
                 return "COMPREHENSIVE_CRITIQUE: " + critique;
-                
             } catch (Exception e) {
                 log.error("Error performing comprehensive critique with AI", e);
                 return "CRITIQUE_ERROR: Failed to analyze product - " + e.getMessage();
@@ -129,8 +128,8 @@ public class IdeaCriticAgent {
         inputModes = {"text"},
         outputModes = {"text"}
     )
-    public CompletableFuture<String> competitiveAnalysis(String productIdea) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> competitiveAnalysis(String productIdea) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 log.info("Performing competitive analysis with AI for: {}", 
                         productIdea.substring(0, Math.min(100, productIdea.length())));
@@ -183,7 +182,6 @@ public class IdeaCriticAgent {
                     .content();
 
                 return "COMPETITIVE_ANALYSIS: " + analysis;
-                
             } catch (Exception e) {
                 log.error("Error performing competitive analysis with AI", e);
                 return "COMPETITIVE_ANALYSIS_ERROR: Failed to analyze competition - " + e.getMessage();

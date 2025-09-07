@@ -45,6 +45,11 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+         <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-http</artifactId>
+        </dependency>
+       
     </dependencies>
 
     <build>

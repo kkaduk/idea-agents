@@ -33,8 +33,8 @@ public class IdeaCreatorAgent {
         inputModes = {"text"},
         outputModes = {"text"}
     )
-    public CompletableFuture<String> analyzeLegislation(String legislationText) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> analyzeLegislation(String legislationText) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 log.info("Analyzing legislation with AI: {}", legislationText.substring(0, Math.min(100, legislationText.length())));
                 
@@ -60,7 +60,6 @@ public class IdeaCreatorAgent {
                     .content();
 
                 return "LEGISLATION_ANALYSIS: " + analysis;
-                
             } catch (Exception e) {
                 log.error("Error analyzing legislation with AI", e);
                 return "LEGISLATION_ANALYSIS_ERROR: Failed to analyze legislation - " + e.getMessage();
@@ -77,40 +76,38 @@ public class IdeaCreatorAgent {
         inputModes = {"text"},
         outputModes = {"text"}
     )
-    public CompletableFuture<String> createProductIdea(String analysisOrOpportunity) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                log.info("Creating product idea with AI based on: {}", analysisOrOpportunity.substring(0, Math.min(100, analysisOrOpportunity.length())));
+    public java.util.concurrent.CompletableFuture<String> createProductIdea(String analysisOrOpportunity) {
+        log.info("Creating product idea with AI based on: {}", analysisOrOpportunity.substring(0, Math.min(100, analysisOrOpportunity.length())));
                 
-                String prompt = String.format("""
-                    Based on the following regulatory analysis or market opportunity, create a comprehensive banking product proposition:
-                    
-                    ANALYSIS/OPPORTUNITY:
-                    %s
-                    
-                    Please develop a detailed banking product idea that includes:
-                    1. Product Name and Category (e.g., Digital Banking, Lending, Payments, etc.)
-                    2. Target Customer Segments (retail, SME, corporate)
-                    3. Core Features and Functionality
-                    4. Value Proposition and Competitive Advantages
-                    5. Revenue Model and Pricing Strategy
-                    6. Technology Requirements and Integration Points
-                    7. Regulatory Compliance Considerations
-                    8. Implementation Timeline (high-level phases)
-                    9. Success Metrics and KPIs
-                    10. Go-to-Market Strategy Overview
-                    
-                    Ensure the product idea is innovative, technically feasible, and addresses real market needs.
-                    Format your response as: PRODUCT_IDEA: [your detailed product proposition]
-                    """, analysisOrOpportunity);
+        String prompt = String.format("""
+            Based on the following regulatory analysis or market opportunity, create a comprehensive banking product proposition:
+            
+            ANALYSIS/OPPORTUNITY:
+            %s
+            
+            Please develop a detailed banking product idea that includes:
+            1. Product Name and Category (e.g., Digital Banking, Lending, Payments, etc.)
+            2. Target Customer Segments (retail, SME, corporate)
+            3. Core Features and Functionality
+            4. Value Proposition and Competitive Advantages
+            5. Revenue Model and Pricing Strategy
+            6. Technology Requirements and Integration Points
+            7. Regulatory Compliance Considerations
+            8. Implementation Timeline (high-level phases)
+            9. Success Metrics and KPIs
+            10. Go-to-Market Strategy Overview
+            
+            Ensure the product idea is innovative, technically feasible, and addresses real market needs.
+            Format your response as: PRODUCT_IDEA: [your detailed product proposition]
+            """, analysisOrOpportunity);
 
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            try {
                 String productIdea = chatClient.prompt()
                     .user(prompt)
                     .call()
                     .content();
-
                 return "PRODUCT_IDEA: " + productIdea;
-                
             } catch (Exception e) {
                 log.error("Error creating product idea with AI", e);
                 return "PRODUCT_IDEA_ERROR: Failed to create product idea - " + e.getMessage();

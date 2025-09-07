@@ -36,8 +36,8 @@ public class IdeaFinalizerAgent {
         inputModes = {"text"},
         outputModes = {"text"}
     )
-    public CompletableFuture<String> synthesizeAllFeedback(String allFeedback) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> synthesizeAllFeedback(String allFeedback) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 log.info("Synthesizing all feedback with AI, iteration: {}", iterationCount.get());
                 
@@ -102,7 +102,6 @@ public class IdeaFinalizerAgent {
                     .content();
 
                 return "FEEDBACK_SYNTHESIS: " + synthesis;
-                
             } catch (Exception e) {
                 log.error("Error synthesizing feedback with AI", e);
                 return "SYNTHESIS_ERROR: Failed to synthesize feedback - " + e.getMessage();
@@ -119,8 +118,8 @@ public class IdeaFinalizerAgent {
         inputModes = {"text"},
         outputModes = {"text"}
     )
-    public CompletableFuture<String> makeStrategicDecision(String synthesizedFeedback) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> makeStrategicDecision(String synthesizedFeedback) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 int currentIteration = iterationCount.get();
                 log.info("Making strategic decision with AI at iteration: {}", currentIteration);
@@ -178,7 +177,6 @@ public class IdeaFinalizerAgent {
                 }
 
                 return "STRATEGIC_DECISION: " + decision;
-                
             } catch (Exception e) {
                 log.error("Error making strategic decision with AI", e);
                 return "DECISION_ERROR: Failed to make strategic decision - " + e.getMessage();
@@ -195,8 +193,8 @@ public class IdeaFinalizerAgent {
         inputModes = {"text"},
         outputModes = {"text"}
     )
-    public CompletableFuture<String> refineProductWithAI(String originalIdea, String improvementGuidance) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> refineProductWithAI(String originalIdea, String improvementGuidance) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 log.info("Refining product idea with AI based on guidance");
                 
@@ -253,7 +251,6 @@ public class IdeaFinalizerAgent {
                     .content();
 
                 return "REFINED_PRODUCT_IDEA: " + refinedIdea;
-                
             } catch (Exception e) {
                 log.error("Error refining product idea with AI", e);
                 return "REFINEMENT_ERROR: Failed to refine product idea - " + e.getMessage();
@@ -270,8 +267,8 @@ public class IdeaFinalizerAgent {
         inputModes = {"text"},
         outputModes = {"text"}
     )
-    public CompletableFuture<String> createFinalPresentation(String finalProductIdea, String developmentJourney) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> createFinalPresentation(String finalProductIdea, String developmentJourney) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 log.info("Creating final presentation with AI for human approval");
                 
@@ -353,7 +350,6 @@ public class IdeaFinalizerAgent {
                     .content();
 
                 return "FINAL_PRESENTATION: " + presentation;
-                
             } catch (Exception e) {
                 log.error("Error creating final presentation with AI", e);
                 return "PRESENTATION_ERROR: Failed to create presentation - " + e.getMessage();

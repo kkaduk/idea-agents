@@ -41,6 +41,11 @@
             <version>1.18.38</version>
             <optional>true</optional>
         </dependency>
+         <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-http</artifactId>
+        </dependency>
+       
     </dependencies>
 
     <build>

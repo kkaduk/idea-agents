@@ -82,7 +82,14 @@ function App() {
             Orchestrate Product Development
           </button>
         </form>
-        <div className="orchestrate-status">{orchestrateStatus}</div>
+        {orchestrateStatus && (
+          <pre
+            className="orchestrate-status"
+            style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+          >
+            {orchestrateStatus}
+          </pre>
+        )}
       </section>
       <h2>Agent Logs</h2>
       <div className="logs-wrapper">

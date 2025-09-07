@@ -82,13 +82,10 @@ Or other if needed
 
 
 3. Seed an idea:
-   ```bash
-   curl -X POST "http://localhost:6060/api/banking/products/develop" \
-     -H "Content-Type: text/plain" \
-     -d "Development of a proposition, an idea for a bank product based on recent legislation and the European Commission's Climate Action initiative."
-   ```
+4. 
+![Seed an idea](./picture/Developer_UI.png)
 
-You should see example report:
+You could see example log of all other agent in UI.
 
 4. Stop microservices
 

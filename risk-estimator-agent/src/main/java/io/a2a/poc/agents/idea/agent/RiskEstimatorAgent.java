@@ -26,8 +26,8 @@ public class RiskEstimatorAgent {
                     "Assess all risks for new digital payment product",
                     "Evaluate comprehensive risk profile for lending service" }, inputModes = {
                             "text" }, outputModes = { "text" })
-    public CompletableFuture<String> assessComprehensiveRisk(String productDescription) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> assessComprehensiveRisk(String productDescription) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 log.info("Performing comprehensive risk assessment with AI for: {}",
                         productDescription.substring(0, Math.min(100, productDescription.length())));
@@ -97,8 +97,8 @@ public class RiskEstimatorAgent {
             "compliance", "ai-analysis", "regulatory", "FIBO" }, examples = {
                     "Assess Basel III compliance requirements",
                     "Evaluate GDPR compliance risks" }, inputModes = { "text" }, outputModes = { "text" })
-    public CompletableFuture<String> assessRegulatoryCompliance(String productDescription) {
-        return CompletableFuture.supplyAsync(() -> {
+    public java.util.concurrent.CompletableFuture<String> assessRegulatoryCompliance(String productDescription) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 log.info("Assessing regulatory compliance with AI for: {}",
                         productDescription.substring(0, Math.min(100, productDescription.length())));
